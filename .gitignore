@@ -3,3 +3,4 @@ backend/uploads
 backend/venv
 .env
 .DS_Store
+backend/*.db

@@ -31,7 +31,7 @@ async def detect_ingredients(data: DetectionRequest):
             model_id="general-image-recognition",
             pat=os.getenv("CLARIFAI_API_KEY")
         )
-        print(os.getenv("CLARIFAI_API_KEY"))
+        
         # Predict using Clarifai
         response = general_model.predict_by_bytes(image_bytes, input_type="image")
 

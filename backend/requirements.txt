@@ -3,3 +3,8 @@ python-dotenv
 uvicorn
 python-multipart
 clarifai[all]
+SQLAlchemy
+PyJWT
+passlib
+pydantic[email]
+bcrypt
