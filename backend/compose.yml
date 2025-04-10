@@ -4,10 +4,11 @@ services:
       context: .
     container_name: lassen-backend
     ports:
-      - "8000:8000"
+      - "7070:7070"
     env_file:
       - .env
     volumes:
       - ./uploads:/app/uploads
       - ./users.db:/app/users.db
+      - /etc/letsencrypt:/etc/letsencrypt:ro  # mount certs
     restart: always
