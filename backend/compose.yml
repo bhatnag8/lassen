@@ -10,5 +10,5 @@ services:
     volumes:
       - ./uploads:/app/uploads
       - ./users.db:/app/users.db
-      - /etc/letsencrypt:/etc/letsencrypt:ro  # mount certs
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     restart: always
