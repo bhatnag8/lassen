@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import axios from "axios";
 
-export default function ResetPasswordPage() {
+function ResetForm() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
 
@@ -18,7 +18,6 @@ export default function ResetPasswordPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus(null);
-
     try {
       const res = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/reset-password`, {
         token,
@@ -30,41 +29,53 @@ export default function ResetPasswordPage() {
     }
   };
 
-  if (!token) {
-    return <p className="text-red-600">Invalid reset link</p>;
-  }
+  if (!token) return <p className="text-red-600">Invalid or missing reset link</p>;
 
   return (
-    <main className="max-w-md mx-auto px-4 py-10">
-      <h1 className="text-2xl font-bold mb-4">Reset Password</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          name="new_password"
-          type="password"
-          placeholder="New Password"
-          className="w-full border px-3 py-2 rounded"
-          value={form.new_password}
-          onChange={handleChange}
-          required
-        />
-        <input
-          name="confirm_password"
-          type="password"
-          placeholder="Confirm Password"
-          className="w-full border px-3 py-2 rounded"
-          value={form.confirm_password}
-          onChange={handleChange}
-          required
-        />
-        <button type="submit" className="w-full bg-black text-white py-2 rounded hover:bg-gray-800">
-          Reset Password
-        </button>
-      </form>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <input
+        name="new_password"
+        type="password"
+        placeholder="New Password"
+        className="w-full border px-3 py-2 rounded"
+        value={form.new_password}
+        onChange={handleChange}
+        required
+      />
+      <input
+        name="confirm_password"
+        type="password"
+        placeholder="Confirm Password"
+        className="w-full border px-3 py-2 rounded"
+        value={form.confirm_password}
+        onChange={handleChange}
+        required
+      />
+      <button type="submit" className="w-full bg-black text-white py-2 rounded hover:bg-gray-800">
+        Reset Password
+      </button>
       {status && (
         <p className={`mt-4 ${status.type === "success" ? "text-green-600" : "text-red-600"}`}>
           {status.message}
         </p>
       )}
+    </form>
+  );
+}
+
+export default function ResetPasswordPage() {
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
+
+  if (!hydrated) return <div className="text-center py-10">Loading...</div>;
+
+  return (
+    <main className="max-w-md mx-auto px-4 py-10">
+      <h1 className="text-2xl font-bold mb-4">Reset Password</h1>
+      <ResetForm />
     </main>
   );
 }

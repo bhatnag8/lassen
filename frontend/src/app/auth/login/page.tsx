@@ -33,7 +33,7 @@ export default function LoginPage() {
       );
 
       const token = res.data.access_token;
-      Cookies.set("token", token, { path: "/", sameSite: "strict" }); // ✅ middleware will now see it
+      Cookies.set("token", token, { path: "/", sameSite: "strict" }); 
       router.push("/upload");
     } catch (err: any) {
       const detail = err.response?.data?.detail;

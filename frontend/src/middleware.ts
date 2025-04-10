@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const PUBLIC_PATHS = ["/", "/auth/login", "/auth/signup"];
-
 export function middleware(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
   const { pathname } = request.nextUrl;
@@ -10,7 +8,7 @@ export function middleware(request: NextRequest) {
     || pathname.startsWith("/auth/login") 
     || pathname.startsWith("/auth/signup")
     || pathname.startsWith("/auth/forgot-password")
-
+    || pathname.startsWith("/auth/reset-password")
   );
 
   if (!isPublic && !token) {
