@@ -39,6 +39,7 @@ class User(Base):
     hashed_password = Column(String)
 Base.metadata.create_all(bind=engine)
 
+
 # Pydantic schemas
 class SignupRequest(BaseModel):
     first_name: str
