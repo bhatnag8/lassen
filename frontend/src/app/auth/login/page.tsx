@@ -81,7 +81,11 @@ export default function LoginPage() {
           {loading ? "Logging in..." : "Log In"}
         </button>
       </form>
-
+      <p className="text-sm text-right mt-2">
+        <a href="/auth/forgot-password" className="text-blue-600 hover:underline">
+          Forgot password?
+        </a>
+      </p>
       {error && <p className="text-red-600 mt-4">{error}</p>}
     </main>
   );

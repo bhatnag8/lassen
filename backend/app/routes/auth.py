@@ -1,5 +1,5 @@
-from fastapi import APIRouter, HTTPException, Depends
-from pydantic import BaseModel, EmailStr
+from fastapi import APIRouter, HTTPException, Depends, Request
+from pydantic import BaseModel, EmailStr, constr
 from sqlalchemy import Column, Integer, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
@@ -9,8 +9,12 @@ from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import os
 import time
+from typing_extensions import Annotated
+import resend
 
 load_dotenv()
+
+resend.api_key = os.getenv("RESEND_API_KEY")
 
 # SQLite
 SQLALCHEMY_DATABASE_URL = "sqlite:///./users.db"
@@ -50,6 +54,15 @@ class LoginRequest(BaseModel):
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
+
+PasswordType = Annotated[str, constr(min_length=8)]
+class PasswordResetRequest(BaseModel):
+    email: EmailStr
+
+class PasswordResetConfirm(BaseModel):
+    token: str
+    new_password: PasswordType
+    confirm_password: PasswordType
 
 # Router
 router = APIRouter()
@@ -96,3 +109,42 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
     
     token = create_access_token(data={"sub": user.email})
     return {"access_token": token}
+
+
+@router.post("/request-password-reset")
+def request_password_reset(req: PasswordResetRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == req.email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    token = create_access_token(data={"sub": user.email}, expires_delta=timedelta(minutes=15))
+    reset_url = f"https://lassen.arryan.xyz/auth/reset-password?token={token}"
+    resend.Emails.send({
+        "from": "noreply@lassen.arryan.xyz",
+        "to": [req.email],
+        "subject": "Reset your password",
+        "html": f"<p>Click <a href='{reset_url}'>here</a> to reset your password. This link expires in 15 minutes.</p>"
+    })
+    return {"message": "Password reset email sent"}
+
+
+@router.post("/reset-password")
+def reset_password(data: PasswordResetConfirm, db: Session = Depends(get_db)):
+    if data.new_password != data.confirm_password:
+        raise HTTPException(status_code=400, detail="Passwords do not match")
+
+    try:
+        payload = jwt.decode(data.token, SECRET_KEY, algorithms=[ALGORITHM])
+        email = payload.get("sub")
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=400, detail="Token expired")
+    except jwt.PyJWTError:
+        raise HTTPException(status_code=400, detail="Invalid token")
+
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user.hashed_password = pwd_context.hash(data.new_password)
+    db.commit()
+    return {"message": "Password updated successfully"}
