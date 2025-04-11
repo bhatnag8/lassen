@@ -7,12 +7,10 @@ import Cookies from "js-cookie";
 
 export default function LoginPage() {
   const router = useRouter();
-
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,8 +19,7 @@ export default function LoginPage() {
     setFormData((prev) => ({ ...prev, [target.name]: target.value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setLoading(true);
     setError(null);
 
@@ -31,9 +28,8 @@ export default function LoginPage() {
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/login`,
         formData
       );
-
       const token = res.data.access_token;
-      Cookies.set("token", token, { path: "/", sameSite: "strict" }); 
+      Cookies.set("token", token, { path: "/", sameSite: "strict" });
       router.push("/upload");
     } catch (err: any) {
       const detail = err.response?.data?.detail;
@@ -48,45 +44,57 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen max-w-md mx-auto px-4 py-10">
-      <h1 className="text-2xl font-bold mb-4">Log In</h1>
-      <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
-        <input
-          name="email"
-          type="email"
-          placeholder="Email"
-          defaultValue={formData.email}
-          onInput={handleChange}
-          className="w-full border px-3 py-2 rounded"
-          required
-          autoComplete="off"
-          // autoComplete="email"
-        />
-        <input
-          name="password"
-          type="password"
-          placeholder="Password"
-          defaultValue={formData.password}
-          onInput={handleChange}
-          className="w-full border px-3 py-2 rounded"
-          required
-          autoComplete="new-password"
-          // autoComplete="current-password"
-        />
-        <button
-          type="submit"
-          className="w-full bg-black text-white py-2 rounded hover:bg-gray-800"
-          disabled={loading}
-        >
-          {loading ? "Logging in..." : "Log In"}
-        </button>
-      </form>
-      <p className="text-sm text-right mt-2">
-        <a href="/auth/forgot-password" className="text-blue-600 hover:underline">
-          Forgot password?
-        </a>
-      </p>
-      {error && <p className="text-red-600 mt-4">{error}</p>}
-    </main>
+    <div className="flex h-screen w-screen items-center justify-center">
+      <div className="z-10 w-full max-w-md overflow-hidden rounded-2xl border border-gray-100 shadow-xl">
+        <div className="flex flex-col items-center justify-center space-y-3 border-b border-gray-200 px-4 py-6 pt-8 text-center sm:px-16">
+          <h3 className="text-xl font-semibold">Sign In</h3>
+          <p className="text-sm text-gray-500">
+            Use your email and password to sign in
+          </p>
+        </div>
+        <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} autoComplete="off">
+          <div className="flex flex-col space-y-4 px-4 py-6 sm:px-16">
+            <input
+              name="email"
+              type="email"
+              placeholder="user@example.com"
+              defaultValue={formData.email}
+              onInput={handleChange}
+              required
+              autoComplete="off"
+              className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+            />
+            <input
+              name="password"
+              type="password"
+              placeholder="••••••••"
+              defaultValue={formData.password}
+              onInput={handleChange}
+              required
+              autoComplete="new-password"
+              className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+            />
+            <button
+              type="submit"
+              className="w-full rounded-md border py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gray-400"
+              disabled={loading}
+            >
+              {loading ? "Logging in..." : "Sign in"}
+            </button>
+            <p className="text-center text-sm">
+              Don&apos;t have an account?{" "}
+              <a href="/auth/signup" className="hover:underline font-semibold">
+                Sign up
+              </a>{" "}
+              for free.
+            </p>
+            <p className="text-center text-sm hover:underline font-semibold">
+              <a href="/auth/forgot-password">Forgot password?</a>
+            </p>
+            {error && <p className="text-red-600 mt-2 text-center">{error}</p>}
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }

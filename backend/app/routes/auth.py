@@ -11,6 +11,8 @@ import os
 import time
 from typing_extensions import Annotated
 import resend
+from jinja2 import Template
+
 
 load_dotenv()
 
@@ -120,12 +122,20 @@ def request_password_reset(req: PasswordResetRequest, db: Session = Depends(get_
 
     token = create_access_token(data={"sub": user.email}, expires_delta=timedelta(minutes=15))
     reset_url = f"https://lassen.arryan.xyz/auth/reset-password?token={token}"
+
+    # Load and render the template
+    with open("app/templates/forgot_password_email.html", "r") as file:
+        print("hitting")
+        template = Template(file.read())
+        rendered_html = template.render(reset_url=reset_url)
+
     resend.Emails.send({
         "from": "noreply@lassen.arryan.xyz",
         "to": [req.email],
         "subject": "Reset your password",
-        "html": f"<p>Click <a href='{reset_url}'>here</a> to reset your password. This link expires in 15 minutes.</p>"
+        "html": rendered_html
     })
+
     return {"message": "Password reset email sent"}
 
 
