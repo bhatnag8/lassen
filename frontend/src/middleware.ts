@@ -9,6 +9,7 @@ export function middleware(request: NextRequest) {
     || pathname.startsWith("/auth/signup")
     || pathname.startsWith("/auth/forgot-password")
     || pathname.startsWith("/auth/reset-password")
+    || pathname === "/logo.png"
   );
 
   if (!isPublic && !token) {
