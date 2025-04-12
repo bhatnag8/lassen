@@ -91,7 +91,7 @@ export default function LoginPage() {
             <p className="text-center text-sm hover:underline font-semibold">
               <a href="/auth/forgot-password">Forgot password?</a>
             </p>
-            {error && <p className="text-red-600 mt-2 text-center">{error}</p>}
+            {error && <p className="text-red-600 mt-2 text-center font-medium">{error}</p>}
           </div>
         </form>
       </div>

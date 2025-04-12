@@ -1,3 +1,3 @@
 cd frontend
-npm install axios classnames js-cookie
+npm install
 npm run dev

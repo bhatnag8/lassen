@@ -57,7 +57,7 @@ export default function SignupPage() {
                 value={formData[field as keyof typeof formData]}
                 onChange={handleChange}
                 required
-                autoComplete="off"
+                autoComplete="new-password"
                 className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
               />
             ))}
