@@ -132,7 +132,7 @@ def request_password_reset(req: PasswordResetRequest, db: Session = Depends(get_
     resend.Emails.send({
         "from": "noreply@lassen.arryan.xyz",
         "to": [req.email],
-        "subject": "Reset your password",
+        "subject": "Reset your Lassen Account Password",
         "html": rendered_html
     })
 
