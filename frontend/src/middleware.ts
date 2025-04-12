@@ -10,6 +10,9 @@ export function middleware(request: NextRequest) {
     || pathname.startsWith("/auth/forgot-password")
     || pathname.startsWith("/auth/reset-password")
     || pathname === "/logo.png"
+    || pathname === "/images/1.jpg"
+    || pathname === "/images/2.jpg"
+    || pathname === "/images/3.jpg"
   );
 
   if (!isPublic && !token) {
