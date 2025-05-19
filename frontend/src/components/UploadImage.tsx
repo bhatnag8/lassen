@@ -5,15 +5,14 @@ import axios from "axios";
 
 interface UploadImageProps {
   onDetected: (ingredients: string[]) => void;
+  setStep: (step: 1 | 2 | 3) => void;
 }
 
-export default function UploadImage({ onDetected }: UploadImageProps) {
+export default function UploadImage({ onDetected, setStep }: UploadImageProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [ingredients, setIngredients] = useState<string[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -21,7 +20,6 @@ export default function UploadImage({ onDetected }: UploadImageProps) {
 
     setSelectedFile(file);
     setPreviewUrl(URL.createObjectURL(file));
-    setIngredients(null);
     setError(null);
   };
 
@@ -29,7 +27,7 @@ export default function UploadImage({ onDetected }: UploadImageProps) {
     if (!selectedFile) return;
 
     setLoading(true);
-    setError(null);
+    setStep(1); // Clarifai started
 
     try {
       const formData = new FormData();
@@ -38,22 +36,21 @@ export default function UploadImage({ onDetected }: UploadImageProps) {
       const uploadRes = await axios.post(
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/upload-image`,
         formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
+        { headers: { "Content-Type": "multipart/form-data" } },
       );
 
       const filename = uploadRes.data.filename;
 
       const detectRes = await axios.post(
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/detect-ingredients`,
-        { filename }
+        { filename },
       );
+
+      setStep(2); // OpenAI filtering started
+
       const detected = detectRes.data.ingredients || [];
-      setIngredients(detected);
       onDetected(detected);
+      setStep(3); // Spoonacular triggered after confirm step
     } catch (err: any) {
       console.error(err);
       setError("Failed to upload or detect ingredients.");
@@ -63,38 +60,56 @@ export default function UploadImage({ onDetected }: UploadImageProps) {
   };
 
   return (
-    <div className="space-y-4">
-      <input type="file" accept="image/*" onChange={handleFileChange} />
+    <div className="space-y-6">
+      {/* Custom File Upload */}
+      <div className="flex items-center gap-4">
+        <label
+          htmlFor="image-upload"
+          className="cursor-pointer inline-block px-6 py-2 bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 transition"
+        >
+          {selectedFile ? "Change Image" : "Browse Image"}
+        </label>
+        <input
+          id="image-upload"
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          className="hidden"
+        />
+        {selectedFile && (
+          <span className="text-sm text-zinc-600 dark:text-zinc-400 truncate max-w-xs">
+            {selectedFile.name}
+          </span>
+        )}
+      </div>
 
+      {/* Preview */}
       {previewUrl && (
         <div>
-          <p className="text-sm text-gray-600">Preview:</p>
-          <img src={previewUrl} alt="Preview" className="w-64 h-auto rounded" />
+          <p className="text-sm text-gray-600 dark:text-zinc-400 mb-1">
+            Preview:
+          </p>
+          <img
+            src={previewUrl}
+            alt="Preview"
+            className="w-64 rounded-lg shadow-md"
+          />
         </div>
       )}
 
+      {/* Detect Button */}
       {selectedFile && (
         <button
-          className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800"
+          className="bg-black text-white px-5 py-2 rounded hover:bg-zinc-800 disabled:opacity-50"
           onClick={handleUpload}
           disabled={loading}
         >
-          {loading ? "Detecting..." : "Detect Ingredients"}
+          {loading ? "Processing..." : "Detect Ingredients"}
         </button>
       )}
 
-      {ingredients && (
-        <div>
-          <h2 className="text-xl font-semibold mt-6 mb-2">Detected Ingredients:</h2>
-          <ul className="list-disc list-inside">
-            {ingredients.map((ing, idx) => (
-              <li key={idx}>{ing}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {error && <p className="text-red-500">{error}</p>}
+      {/* Error */}
+      {error && <p className="text-red-500 text-sm">{error}</p>}
     </div>
   );
 }

@@ -57,7 +57,7 @@
 bash backend.sh
 ```
 
-Environment variables go in `.env`:
+Environment variables go in `.env` inside the `backend` folder:
 ```env
 CLARIFAI_API_KEY=
 SPOONACULAR_API_KEY=
@@ -66,10 +66,11 @@ RESEND_API_KEY=
 ```
 
 ### Frontend (Next.js)
+Disclaimer: `npm` must be installed which can be done by installing `node` at https://nodejs.org/en/download
 ```bash
 bash frontend.sh
 ```
-Add `.env.local`:
+Add `.env.local` inside the `frontend` folder:
 ```env
 NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
 ```
@@ -88,9 +89,8 @@ NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
 ## 🧪 To-Do / Roadmap
 - [ ] User-saved recipes
 - [ ] Recipe Information/Steps
-  
+
 ---
 
 ## 📄 License
 MIT © Arryan Bhatnagar
-

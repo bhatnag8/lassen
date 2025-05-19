@@ -1,20 +1,20 @@
 import type { Metadata } from "next";
-import { Inter } from 'next/font/google'
+import { Inter } from "next/font/google";
 import "./globals.css";
-import NavBar from "@/components/NavBar"; 
-import { ThemeProvider } from 'next-themes';
+import NavBar from "@/components/NavBar";
+import { ThemeProvider } from "next-themes";
 
 // If loading a variable font, you don't need to specify the font weight
 const inter = Inter({
-  subsets: ['latin'],
-  display: 'swap',
-})
+  subsets: ["latin"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Lassen",
   description: "",
   icons: {
-    icon: "/favicon.png", 
+    icon: "/favicon.ico",
   },
 };
 

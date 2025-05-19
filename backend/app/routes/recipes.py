@@ -5,6 +5,8 @@ import requests
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
+
+
 router = APIRouter()
 
 SPOONACULAR_API_URL = "https://api.spoonacular.com/recipes/findByIngredients"

@@ -26,11 +26,11 @@ export default function LoginPage() {
     try {
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/login`,
-        formData
+        formData,
       );
       const token = res.data.access_token;
       Cookies.set("token", token, { path: "/", sameSite: "strict" });
-      router.push("/upload");
+      router.push("/upload/image");
     } catch (err: any) {
       const detail = err.response?.data?.detail;
       if (Array.isArray(detail)) {
@@ -52,7 +52,13 @@ export default function LoginPage() {
             Use your email and password to sign in
           </p>
         </div>
-        <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} autoComplete="off">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}
+          autoComplete="off"
+        >
           <div className="flex flex-col space-y-4 px-4 py-6 sm:px-16">
             <input
               name="email"
@@ -91,7 +97,11 @@ export default function LoginPage() {
             <p className="text-center text-sm hover:underline font-semibold">
               <a href="/auth/forgot-password">Forgot password?</a>
             </p>
-            {error && <p className="text-red-600 mt-2 text-center font-medium">{error}</p>}
+            {error && (
+              <p className="text-red-600 mt-2 text-center font-medium">
+                {error}
+              </p>
+            )}
           </div>
         </form>
       </div>

@@ -1,10 +1,10 @@
-import GridTileImage from '@/components/Tile';
-import Link from 'next/link';
+import GridTileImage from "@/components/Tile";
+import Link from "next/link";
 
 export function ThreeItemGridItem({
   item,
   size,
-  priority
+  priority,
 }: {
   item: {
     featuredImage: { url: string };
@@ -17,31 +17,37 @@ export function ThreeItemGridItem({
     };
     handle: string;
   };
-  size: 'full' | 'half';
+  size: "full" | "half";
   priority?: boolean;
 }) {
   return (
     <div
-      className={size === 'full' ? 'md:col-span-4 md:row-span-2' : 'md:col-span-2 md:row-span-1'}
+      className={
+        size === "full"
+          ? "md:col-span-4 md:row-span-2"
+          : "md:col-span-2 md:row-span-1"
+      }
     >
       <Link
         className="relative block aspect-square h-full w-full"
-        href={`/product/${item.handle}`}
+        href={`/upload/image`}
         prefetch={true}
       >
         <GridTileImage
           src={item.featuredImage.url}
           fill
           sizes={
-            size === 'full' ? '(min-width: 768px) 66vw, 100vw' : '(min-width: 768px) 33vw, 100vw'
+            size === "full"
+              ? "(min-width: 768px) 66vw, 100vw"
+              : "(min-width: 768px) 33vw, 100vw"
           }
           priority={priority}
           alt={item.title}
           label={{
-            position: size === 'full' ? 'center' : 'bottom',
+            position: size === "full" ? "center" : "bottom",
             title: item.title as string,
             amount: item.priceRange.maxVariantPrice.amount,
-            currencyCode: item.priceRange.maxVariantPrice.currencyCode
+            currencyCode: item.priceRange.maxVariantPrice.currencyCode,
           }}
         />
       </Link>
@@ -52,23 +58,23 @@ export function ThreeItemGridItem({
 export default function ThreeItemGrid() {
   const items = [
     {
-      image: '/images/1.jpg',
-      title: 'Image Label 1',
-      price: '10.00',
-      currency: 'USD'
+      image: "/images/1.jpg",
+      title: "Fresh Herb & Spice Mix",
+      price: "10.00",
+      currency: "USD",
     },
     {
-      image: '/images/2.jpg',
-      title: 'Image Label 2',
-      price: '20.00',
-      currency: 'USD'
+      image: "/images/2.jpg",
+      title: "Fruits",
+      price: "20.00",
+      currency: "USD",
     },
     {
-      image: '/images/3.jpg',
-      title: 'Image Label 3',
-      price: '30.00',
-      currency: 'USD'
-    }
+      image: "/images/3.jpg",
+      title: "Baking Essentials",
+      price: "30.00",
+      currency: "USD",
+    },
   ];
 
   return (
@@ -81,10 +87,10 @@ export default function ThreeItemGrid() {
           priceRange: {
             maxVariantPrice: {
               amount: items[0].price,
-              currencyCode: items[0].currency
-            }
+              currencyCode: items[0].currency,
+            },
           },
-          handle: 'product-1'
+          handle: "product-1",
         }}
         priority={true}
       />
@@ -96,10 +102,10 @@ export default function ThreeItemGrid() {
           priceRange: {
             maxVariantPrice: {
               amount: items[1].price,
-              currencyCode: items[1].currency
-            }
+              currencyCode: items[1].currency,
+            },
           },
-          handle: 'product-2'
+          handle: "product-2",
         }}
         priority={true}
       />
@@ -111,10 +117,10 @@ export default function ThreeItemGrid() {
           priceRange: {
             maxVariantPrice: {
               amount: items[2].price,
-              currencyCode: items[2].currency
-            }
+              currencyCode: items[2].currency,
+            },
           },
-          handle: 'product-3'
+          handle: "product-3",
         }}
       />
     </section>

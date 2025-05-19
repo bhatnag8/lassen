@@ -1,8 +1,8 @@
-from fastapi import APIRouter, HTTPException, Depends, Request
+from fastapi import APIRouter, HTTPException, Depends, Request, status
 from pydantic import BaseModel, EmailStr, constr
-from sqlalchemy import Column, Integer, String, create_engine
+from sqlalchemy import Column, Integer, String, create_engine, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker, Session, relationship
 from passlib.context import CryptContext
 import jwt
 from datetime import datetime, timedelta
@@ -12,6 +12,9 @@ import time
 from typing_extensions import Annotated
 import resend
 from jinja2 import Template
+from fastapi.security import OAuth2PasswordBearer
+
+
 
 
 load_dotenv()
@@ -39,8 +42,19 @@ class User(Base):
     last_name = Column(String)
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
-Base.metadata.create_all(bind=engine)
+    recipes = relationship("SavedRecipe", back_populates="user")
 
+
+
+class SavedRecipe(Base):
+    __tablename__ = "saved_recipes"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    title = Column(String)
+    image = Column(String)
+    source_url = Column(String)
+
+    user = relationship("User", back_populates="recipes")
 
 # Pydantic schemas
 class SignupRequest(BaseModel):
@@ -66,6 +80,8 @@ class PasswordResetConfirm(BaseModel):
     token: str
     new_password: PasswordType
     confirm_password: PasswordType
+
+Base.metadata.create_all(bind=engine)
 
 # Router
 router = APIRouter()
@@ -109,7 +125,7 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == req.email).first()
     if not user or not pwd_context.verify(req.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    
+
     token = create_access_token(data={"sub": user.email})
     return {"access_token": token}
 
@@ -138,6 +154,36 @@ def request_password_reset(req: PasswordResetRequest, db: Session = Depends(get_
 
     return {"message": "Password reset email sent"}
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")  # or "/auth/login" if that’s your route
+
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    print("🔐 Raw token received:", token)  # 👈 Add this
+
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        print("📬 Decoded payload:", payload)  # 👈 Add this
+
+        email: str = payload.get("sub")
+        if email is None:
+            raise credentials_exception
+    except jwt.PyJWTError as e:
+        print("❌ JWT decode error:", str(e))  # 👈 Add this
+        raise credentials_exception
+
+    user = db.query(User).filter(User.email == email).first()
+    if user is None:
+        print("❌ No user found for email:", email)  # 👈 Add this
+        raise credentials_exception
+
+    print("✅ Authenticated user:", user.email)  # 👈 Add this
+    return user
+
 
 @router.post("/reset-password")
 def reset_password(data: PasswordResetConfirm, db: Session = Depends(get_db)):
@@ -159,3 +205,19 @@ def reset_password(data: PasswordResetConfirm, db: Session = Depends(get_db)):
     user.hashed_password = pwd_context.hash(data.new_password)
     db.commit()
     return {"message": "Password updated successfully"}
+
+@router.post("/save-recipe")
+def save_recipe(data: dict, db: Session = Depends(get_db), user=Depends(get_current_user)):
+    recipe = SavedRecipe(
+        user_id=user.id,
+        title=data["title"],
+        image=data["image"],
+        source_url=data["source_url"]
+    )
+    db.add(recipe)
+    db.commit()
+    return {"message": "Recipe saved successfully"}
+
+@router.get("/recipes")
+def get_saved_recipes(db: Session = Depends(get_db), user=Depends(get_current_user)):
+    return db.query(SavedRecipe).filter(SavedRecipe.user_id == user.id).all()

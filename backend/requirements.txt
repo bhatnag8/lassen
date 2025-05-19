@@ -10,3 +10,4 @@ pydantic[email]
 bcrypt==4.0.1
 resend
 jinja2
+openai
