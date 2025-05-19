@@ -6,7 +6,7 @@
 
 ## 🚀 Features
 
-- 🔎 **AI Ingredient Detection** – Powered by Clarifai's object recognition models
+- 🔎 **AI Ingredient Detection** – Powered by Clarifai's object recognition models and OpenAI for filtering
 - 🍲 **Recipe Recommendation** – Spoonacular API integration for recipe suggestions
 - 📸 **Image Upload Support** – Mobile & desktop file uploads
 - ✅ **Ingredient Confirmation UI** – Users can confirm/edit detected items before generating recipes
@@ -33,7 +33,7 @@
 - **Language**: Python 3.13
 - **Auth**: JWT + bcrypt password hashing
 - **Database**: SQLite (users.db)
-- **AI Detection**: Clarifai API
+- **AI Detection**: Clarifai API + OpenAI API
 - **Recipe Data**: Spoonacular API
 - **Email Service**: Resend (password reset)
 - **Storage**: `uploads/` folder for user images
@@ -63,6 +63,7 @@ CLARIFAI_API_KEY=
 SPOONACULAR_API_KEY=
 JWT_SECRET_KEY=
 RESEND_API_KEY=
+OPENAI_API_KEY=
 ```
 
 ### Frontend (Next.js)

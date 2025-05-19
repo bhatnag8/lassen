@@ -30,7 +30,7 @@ Base = declarative_base()
 # JWT config
 SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 30 * 12
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
