@@ -154,10 +154,10 @@ def request_password_reset(req: PasswordResetRequest, db: Session = Depends(get_
 
     return {"message": "Password reset email sent"}
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")  # or "/auth/login" if that’s your route
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    print("🔐 Raw token received:", token)  # 👈 Add this
+    print("Raw token received:", token)
 
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -167,21 +167,21 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
 
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        print("📬 Decoded payload:", payload)  # 👈 Add this
+        print("Decoded payload:", payload)  
 
         email: str = payload.get("sub")
         if email is None:
             raise credentials_exception
     except jwt.PyJWTError as e:
-        print("❌ JWT decode error:", str(e))  # 👈 Add this
+        print("JWT decode error:", str(e)) 
         raise credentials_exception
 
     user = db.query(User).filter(User.email == email).first()
     if user is None:
-        print("❌ No user found for email:", email)  # 👈 Add this
+        print("No user found for email:", email) 
         raise credentials_exception
 
-    print("✅ Authenticated user:", user.email)  # 👈 Add this
+    print("Authenticated user:", user.email) 
     return user
 
 
