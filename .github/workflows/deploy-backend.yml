@@ -22,7 +22,7 @@ jobs:
       - name: SSH & Deploy
         run: |
           ssh -o StrictHostKeyChecking=yes ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-            cd ~/lassen/backend
+            cd ~/archive/lassen/backend
             git pull origin main
             docker compose down
             docker compose up --build -d
